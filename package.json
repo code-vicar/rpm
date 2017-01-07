@@ -1,0 +1,20 @@
+{
+  "name": "@ratio-cypress/bspm",
+  "version": "1.0.0",
+  "description": "Brightscript package manager",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha test --recursive"
+  },
+  "author": "Scott Vickers",
+  "license": "MIT",
+  "dependencies": {
+    "add-remote-git": "github:code-vicar/add-remote-git"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "mocha": "^3.2.0",
+    "rewire": "^2.5.2",
+    "sinon": "^1.17.7"
+  }
+}
