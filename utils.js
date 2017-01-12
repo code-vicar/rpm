@@ -14,6 +14,7 @@ function stat(path) {
 }
 
 var utils = {
+  stat: stat,
   cp: function cp(srcFile, outFile) {
     return new Promise(function(resolve, reject) {
       var readStream = fs.createReadStream(srcFile)

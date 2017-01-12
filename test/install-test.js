@@ -1,7 +1,10 @@
+var fs = require('fs');
 var path = require('path');
 var expect = require('chai').expect;
 var sinon = require('sinon');
 var rewire = require('rewire');
+
+var utils = require('../utils');
 
 var install = rewire('../cmds/install');
 
@@ -21,27 +24,15 @@ describe('install', function () {
     })
   })
 
-  describe('parsePackageInfo', function () {
-    it('should parse package info file', function (done) {
-      done('err');
-    })
-  })
-
-  describe('cloneMissingDeps', function () {
-    it('should clone missing deps', function (done) {
-      done('err');
-    })
-  })
-
-  describe('pullLatestExistingDeps', function () {
-    it('should pull latest for existing deps', function (done) {
-      done('err');
-    })
-  })
-
-  describe('removeExtraneusDeps', function () {
-    it('should remove folders that aren\'t listed as dependencies', function (done) {
-      done('err');
+  it('should download git urls in rpm.json to {cwd}/rpm_modules/{dependency-name}', function() {
+    var dir = path.resolve(__dirname, 'install-staging')
+    return install({
+      cwd: path.resolve(__dirname, 'install-staging')
+    }).then(function() {
+      return utils.stat(path.join(dir, 'rpm_modules', 'some-repo'))
+    }).then(function(stats) {
+      expect(stats).to.exist;
+      expect(stats.isDirectory).to.be.true;
     })
   })
 })

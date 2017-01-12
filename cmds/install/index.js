@@ -1,5 +1,6 @@
-var validateDirectory = require('../../utils').validateDirectory
 var _ = require('lodash')
+var addRemoteGit = require('add-remote-git')
+var validateDirectory = require('../../utils').validateDirectory
 
 module.exports = install
 
