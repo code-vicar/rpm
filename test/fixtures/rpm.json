@@ -1,5 +1,5 @@
 {
   "dependencies": {
-    "roku-dreaks": "github:code-vicar/graphlib"
+    "some-repo": "github:code-vicar/graphlib"
   }
 }

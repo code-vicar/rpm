@@ -1,3 +1,4 @@
+var path = require('path');
 var expect = require('chai').expect;
 var sinon = require('sinon');
 var rewire = require('rewire');
@@ -9,15 +10,14 @@ var mockAddRemoteGit = sinon.spy();
 install.__set__('addRemoteGit', mockAddRemoteGit);
 
 describe('install', function () {
-  it('should throw error if cwd is invalid', function (done) {
-    install({
+  it('should throw error if cwd is invalid', function () {
+    return install({
       cwd: 'blah'
-    }).then(function () {
-      done(new Error('Should not succeed'));
+    }).then(function() {
+      throw new Error('Should not succeed');
     }).catch(function (err) {
       expect(err).to.exist;
       expect(err.message).to.not.equal('Should not succeed');
-      done();
     })
   })
 

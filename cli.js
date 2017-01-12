@@ -7,7 +7,7 @@ var cmds = require('./index.js')
 var info = require('./package.json')
 
 program.version(info.version)
-    .option('-d, --dir <dir>', 'set the cwd')
+  .option('-d, --dir <dir>', 'set the cwd')
 
 // program
 //     .command('deploy')
@@ -45,13 +45,13 @@ program.version(info.version)
 //     })
 
 function getCwd() {
-    var cwd = process.cwd()
+  var cwd = process.cwd()
 
-    if (program.dir) {
-        cwd = path.resolve(cwd, program.dir)
-    }
+  if (program.dir) {
+    cwd = path.resolve(cwd, program.dir)
+  }
 
-    return cwd
+  return cwd
 }
 
 program.parse(process.argv)

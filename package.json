@@ -9,7 +9,8 @@
   "author": "Scott Vickers",
   "license": "MIT",
   "dependencies": {
-    "add-remote-git": "github:code-vicar/add-remote-git"
+    "add-remote-git": "github:code-vicar/add-remote-git",
+    "lodash": "^4.17.4"
   },
   "devDependencies": {
     "chai": "^3.5.0",
