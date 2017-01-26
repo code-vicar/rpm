@@ -1,7 +1,7 @@
 {
-  "name": "@ratio-cypress/bspm",
+  "name": "@ratio-cypress/rpm",
   "version": "1.0.0",
-  "description": "Brightscript package manager",
+  "description": "Roku package manager",
   "main": "index.js",
   "scripts": {
     "test": "mocha test --recursive"
@@ -10,6 +10,7 @@
   "license": "MIT",
   "dependencies": {
     "add-remote-git": "github:code-vicar/add-remote-git",
+    "async": "^2.1.4",
     "lodash": "^4.17.4"
   },
   "devDependencies": {
