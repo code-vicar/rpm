@@ -1,7 +1,9 @@
 var path = require('path')
+
 var _ = require('lodash')
 var async = require('async')
 var addRemoteGit = require('add-remote-git')
+var fs = require('fs-promise')
 var utils = require('../../utils')
 var validateDirectory = utils.validateDirectory
 var readFile = utils.readFile
@@ -11,11 +13,15 @@ module.exports = install
 
 function install(options) {
   var cwd = _.get(options, 'cwd')
+  var rpmJsonPath, rokuModulesPath
 
   return validateDirectory(cwd).then(function(_cwd) {
+    // set paths
     cwd = _cwd
+    rpmJsonPath = path.join(cwd, 'rpm.json')
+    rokuModulesPath = path.join(cwd, 'roku_modules')
 
-    return readFile(path.join(cwd, 'rpm.json'), 'utf-8').catch(function(err) {
+    return readFile(rpmJsonPath, 'utf-8').catch(function(err) {
       throw new RpmError({ message: 'Could not read rpm.json file', innerError: err })
     })
   }).then(function(contents) {
@@ -33,7 +39,14 @@ function install(options) {
     var downloads = []
     _.forOwn(rpmJson.dependencies, function(value, key) {
       downloads.push(function(callback) {
-        addRemoteGit.download(value, callback)
+        addRemoteGit.download(value, function(err, download) {
+          if (err) {
+            return callback(err)
+          }
+          download.sourceValue = value
+          download.sourceKey = key
+          return callback(null, download)
+        })
       })
     })
 
@@ -47,6 +60,27 @@ function install(options) {
       })
     })
   }).then(function(results) {
-    return results.length + ' packages downloaded'
+    return fs.ensureDir(rokuModulesPath).then(function() {
+      return results
+    })
+  }).then(function(results) {
+    var copies = []
+    _.forEach(results, function(result) {
+      var targetDir = path.join(rokuModulesPath, result.sourceKey)
+      copies.push(function(callback) {
+        fs.copy(result.tmpdir, targetDir)
+          .then(function() { callback() })
+          .catch(function(err) { callback(err) })
+      })
+    })
+
+    return new Promise(function(resolve, reject) {
+      return async.series(copies, function(err) {
+        if (err) {
+          return reject(err)
+        }
+        return resolve(results)
+      })
+    })
   })
 }
