@@ -76,4 +76,20 @@ describe('install', function() {
       expect(dirContents).to.contain('async')
     })
   })
+
+  it('should call clearCache after install succeeds', function() {
+    throw new Error('not implemented')
+    return install({
+      cwd: dir
+    }).then(function() {
+    })
+  })
+
+  it('should call clearCache after install fails', function() {
+    throw new Error('not implemented')
+    return install({
+      cwd: dir
+    }).then(function() {
+    })
+  })
 })
