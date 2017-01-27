@@ -1,12 +1,23 @@
 {
-  "name": "@ratio-cypress/rpm",
+  "name": "@code-vicar/rpm",
   "version": "1.0.0",
   "description": "Roku package manager",
   "main": "index.js",
   "scripts": {
     "test": "mocha test \"test/**/*-test.js\""
   },
-  "author": "Scott Vickers",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/code-vicar/rpm.git"
+  },
+  "author": {
+    "name": "Scott Vickers",
+    "email": "scott.w.vickers@gmail.com",
+    "url": "https://scottwvickers.com"
+  },
+  "keywords": [
+    "roku"
+  ],
   "bin": {
     "rpm": "./cli.js"
   },
