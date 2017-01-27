@@ -25,14 +25,26 @@ program.version(info.version)
 //         })
 //     })
 //
-// program
-//     .command('install')
-//     .description('download dependencies')
-//     .action(function() {
-//         var cwd = getCwd()
-//         return cmds.install({cwd:cwd}).then(function() {
-//         })
-//     })
+program
+  .command('install')
+  .description('download dependencies')
+  .action(function() {
+    var cwd = getCwd()
+    return cmds.install({ cwd: cwd }).then(function(results) {
+      var count = results.length
+
+      console.log('Installed ' + count + ' dependencies')
+    }).catch(function(err) {
+      if (err) {
+        if (err.message) {
+          console.error(err.message)
+        }
+        if (err.innerError && err.innerError.message) {
+          console.error('innerError', err.innerError.message)
+        }
+      }
+    })
+  })
 //
 // program
 //     .command('pack')

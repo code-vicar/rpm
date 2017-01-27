@@ -7,6 +7,9 @@
     "test": "mocha test \"test/**/*-test.js\""
   },
   "author": "Scott Vickers",
+  "bin": {
+    "rpm": "./cli.js"
+  },
   "license": "MIT",
   "dependencies": {
     "add-remote-git": "github:code-vicar/add-remote-git",
