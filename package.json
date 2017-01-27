@@ -25,6 +25,7 @@
   "dependencies": {
     "add-remote-git": "github:code-vicar/add-remote-git",
     "async": "^2.1.4",
+    "commander": "^2.9.0",
     "fs-promise": "^1.0.0",
     "lodash": "^4.17.4"
   },
