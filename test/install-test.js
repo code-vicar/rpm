@@ -77,19 +77,27 @@ describe('install', function() {
     })
   })
 
-  it('should call clearCache after install succeeds', function() {
-    throw new Error('not implemented')
+  it('should call clearCache after install fails', function() {
+    mockAddRemoteGit.download = sinon.spy(function(url, cb) {
+      return cb(new Error('whoops'))
+    })
+
     return install({
       cwd: dir
     }).then(function() {
+      throw new Error('Should not succeed');
+    }).catch(function(err) {
+      expect(err).to.exist;
+      expect(err.message).to.not.equal('Should not succeed');
+      expect(mockAddRemoteGit.clearCache.called).to.equal(true, 'clearCache was not called')
     })
   })
 
-  it('should call clearCache after install fails', function() {
-    throw new Error('not implemented')
+  it('should call clearCache after install succeeds', function() {
     return install({
       cwd: dir
     }).then(function() {
+      expect(mockAddRemoteGit.clearCache.called).to.equal(true, 'clearCache was not called')
     })
   })
 })

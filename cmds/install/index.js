@@ -14,6 +14,7 @@ module.exports = install
 function install(options) {
   var cwd = _.get(options, 'cwd')
   var rpmJsonPath, rokuModulesPath
+  var didClearCache = false
 
   return validateDirectory(cwd).then(function(_cwd) {
     // set paths
@@ -81,6 +82,38 @@ function install(options) {
         }
         return resolve(results)
       })
+    })
+  }).then(function(results) {
+    return clearCache().then(function() {
+      didClearCache = true
+      return results
+    })
+  }).catch(function(err) {
+    // already cleared the cache, or clear cache attempt resulted in error then just rethrow (nothing else to do)
+    if (didClearCache || (err && err.type && err.type === 'ClearCacheError')) {
+      throw err
+    }
+
+    // haven't cleared cache yet, and error wasn't a result of a failed clearCache attempt, go ahead and try to clear the cache
+    return clearCache().then(function() {
+      // rethrow original error
+      throw err
+    })
+  })
+}
+
+function clearCache() {
+  return new Promise(function(resolve, reject) {
+    addRemoteGit.clearCache(function(err) {
+      if (err) {
+        return reject(new RpmError({
+          message: 'Could not clear cache',
+          type: 'ClearCacheError',
+          innerError: err
+        }))
+      }
+
+      return resolve()
     })
   })
 }
