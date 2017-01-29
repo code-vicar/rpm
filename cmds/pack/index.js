@@ -99,12 +99,26 @@ function pack(options) {
 
       archive.finalize()
     })
+  }).then(function() {
+    return fs.remove(tmpDir).catch(function(err) {
+      if (err) {
+        throw new RpmError({
+          message: 'Failed to remove ' + tmpDir,
+          type: 'RemoveTempDir',
+          innerError: err
+        })
+      }
+    })
   }).catch(function(err) {
     if (err && err.type == 'UnreadableRokuModules') {
       // noop when roku_modules is unreadable
       return Promise.resolve()
     }
-    throw err
+    if (err && err.type !== 'RemoveTempDir') {
+      throw err
+    }
+
+    return fs.remove(tmpDir)
   })
 }
 

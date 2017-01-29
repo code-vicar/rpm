@@ -23,6 +23,9 @@ describe('pack', function() {
     })
 
     mockfs = {
+      remove: sinon.spy(function() {
+        return Promise.resolve()
+      }),
       createWriteStream: sinon.spy(function() {
         return {
           on: function(event, cb) {
@@ -48,7 +51,8 @@ describe('pack', function() {
           return 12
         },
         pipe: sinon.spy(),
-        glob: sinon.spy()
+        glob: sinon.spy(),
+        finalize: function() { }
       }
     }
 
@@ -202,7 +206,8 @@ describe('pack', function() {
             return 15
           },
           pipe: pipeSpy,
-          glob: globSpy
+          glob: globSpy,
+          finalize: function() { }
         }
       }
     })
@@ -290,6 +295,27 @@ describe('pack', function() {
           expect(globSpy.args[0][1].ignore.indexOf('node_modules')).to.not.equal(-1, 'Did not ignore option \'node_modules\'')
         })
       })
+    })
+  })
+
+  it('should remove temporary directory when finished', function() {
+    return pack({
+      cwd: dir
+    }).then(function() {
+      expect(mockfs.remove.called).to.equal(true, 'Did not call remove')
+      expect(mockfs.remove.calledWith(path.join(dir, temp_dir))).to.equal(true, 'Incorrect remove location')
+    })
+  })
+
+  it('should remove temporary directory even on error', function() {
+    mockfs.copy = function() {
+      return Promise.reject()
+    }
+    return pack({
+      cwd: dir
+    }).then(function() {
+      expect(mockfs.remove.called).to.equal(true, 'Did not call remove')
+      expect(mockfs.remove.calledWith(path.join(dir, temp_dir))).to.equal(true, 'Incorrect remove location')
     })
   })
 })
