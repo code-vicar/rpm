@@ -24,6 +24,23 @@ function stat(path) {
   })
 }
 
+function readDir(path) {
+  var i = arguments.length;
+  var args = [];
+  while (i--) args[i] = arguments[i];
+
+  return new Promise(function(resolve, reject) {
+    args.push(function(err, contents) {
+      if (err) {
+        return reject(err)
+      }
+
+      return resolve(contents)
+    })
+    return fs.readdir.apply(fs, args)
+  })
+}
+
 function readFile() {
   var i = arguments.length;
   var args = [];
@@ -41,9 +58,32 @@ function readFile() {
   })
 }
 
+function Logger(debug) {
+  return {
+    log: function() {
+      if (debug) {
+        console.log.apply(console, arguments)
+      }
+    },
+    warn: function() {
+      if (debug) {
+        console.warn.apply(console, arguments)
+      }
+    },
+    error: function() {
+      if (debug) {
+        console.error.apply(console, arguments)
+      }
+    }
+  }
+}
+
 var utils = {
+  tmpDir: '.rpm_pack',
   RpmError: RpmError,
   stat: stat,
+  Logger: Logger,
+  readDir: readDir,
   readFile: readFile,
   cp: function cp(srcFile, outFile) {
     return new Promise(function(resolve, reject) {

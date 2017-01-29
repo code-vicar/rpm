@@ -45,16 +45,25 @@ program
       }
     })
   })
-//
-// program
-//     .command('pack')
-//     .description('pack and create a zip of the application')
-//     .action(function() {
-//         var cwd = getCwd()
-//         return cmds.pack({cwd: cwd}).then(function(results) {
-//             console.log('results')
-//         })
-//     })
+
+program
+  .command('pack')
+  .description('pack and create a zip of the application')
+  .action(function() {
+    var cwd = getCwd()
+    return cmds.pack({ cwd: cwd }).then(function() {
+      console.log('Success')
+    }).catch(function(err) {
+      if (err) {
+        if (err.message) {
+          console.error(err.message)
+        }
+        if (err.innerError && err.innerError.message) {
+          console.error('innerError', err.innerError.message)
+        }
+      }
+    })
+  })
 
 function getCwd() {
   var cwd = process.cwd()
