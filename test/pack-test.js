@@ -34,7 +34,7 @@ describe('pack', function() {
       }),
       copy: sinon.spy(function(src, dest, options) {
         if (options && typeof options.filter === 'function') {
-          options.filter()
+          options.filter('')
         }
         return Promise.resolve()
       })
@@ -93,6 +93,32 @@ describe('pack', function() {
         dir,
         path.join(dir, temp_dir)
       )).to.equal(true, 'Didn\'t copy to temp folder')
+    })
+  })
+
+  it('should not copy sub directory into itself', function() {
+    var mockString = {
+      charAt: function() { return '/' },
+      replace: sinon.spy(function() {
+        return mockString
+      }),
+      slice: sinon.spy(function() {
+        return mockString
+      }),
+      startsWith: sinon.spy()
+    }
+    mockfs.copy = function(src, dest, options) {
+      if (options && typeof options.filter === 'function') {
+        options.filter(mockString)
+      }
+      return Promise.resolve()
+    }
+    return pack({
+      cwd: dir
+    }).then(function() {
+      expect(mockString.replace.called).to.equal(true, 'Did not call replace')
+      expect(mockString.slice.called).to.equal(true, 'Did not call slice')
+      expect(mockString.startsWith.calledWith(temp_dir)).to.equal(true, 'Did not call startsWith with temp_dir')
     })
   })
 
@@ -202,7 +228,7 @@ describe('pack', function() {
           cwd: dir
         }).then(function() {
           expect(globSpy.called).to.equal(true, 'Did not call glob')
-          expect(globSpy.calledWith('**/*')).to.equal(true, 'Did not glob all content')
+          expect(globSpy.calledWith('**')).to.equal(true, 'Did not glob all content')
         })
       })
     })
@@ -222,6 +248,46 @@ describe('pack', function() {
             return typeof ignore !== 'undefined' && ignore != null
           }, 'Didn\'t include glob ignore patterns')
           expect(globSpy.args[0][1].ignore.indexOf('rpm_archive.zip')).to.not.equal(-1, 'Did not ignore self')
+        })
+      })
+    })
+
+    it('should filter globbed contents to ignore roku_modules', function() {
+      return pack.__with__({
+        archiver: mockArchiver
+      })(function() {
+        return pack({
+          cwd: dir
+        }).then(function() {
+          expect(globSpy.called).to.equal(true, 'Did not call pipe')
+          expect(globSpy.args[0][1]).to.satisfy(function(options) {
+            return typeof options !== 'undefined' && options != null
+          }, 'Didn\'t include glob options')
+          expect(globSpy.args[0][1].ignore).to.satisfy(function(ignore) {
+            return typeof ignore !== 'undefined' && ignore != null
+          }, 'Didn\'t include glob ignore patterns')
+          expect(globSpy.args[0][1].ignore.indexOf('roku_modules/**')).to.not.equal(-1, 'Did not ignore roku_modules')
+        })
+      })
+    })
+
+    it('should filter globbed contents to ignore patterns if provided in options', function() {
+      return pack.__with__({
+        archiver: mockArchiver
+      })(function() {
+        return pack({
+          cwd: dir,
+          ignore: ['out', 'node_modules']
+        }).then(function() {
+          expect(globSpy.called).to.equal(true, 'Did not call pipe')
+          expect(globSpy.args[0][1]).to.satisfy(function(options) {
+            return typeof options !== 'undefined' && options != null
+          }, 'Didn\'t include glob options')
+          expect(globSpy.args[0][1].ignore).to.satisfy(function(ignore) {
+            return typeof ignore !== 'undefined' && ignore != null
+          }, 'Didn\'t include glob ignore patterns')
+          expect(globSpy.args[0][1].ignore.indexOf('out')).to.not.equal(-1, 'Did not ignore option \'out\'')
+          expect(globSpy.args[0][1].ignore.indexOf('node_modules')).to.not.equal(-1, 'Did not ignore option \'node_modules\'')
         })
       })
     })

@@ -18,6 +18,7 @@ module.exports = pack
 function pack(options) {
   var cwd = _.get(options, 'cwd')
   var debug = !!(_.get(options, 'debug'))
+  var ignore = _.get(options, 'ignore') || []
   var logger = new Logger(debug)
   var tmpDir = utils.tmpDir
   var rokuModulesPath
@@ -28,8 +29,17 @@ function pack(options) {
     tmpDir = path.join(cwd, tmpDir)
 
     return fs.copy(cwd, tmpDir, {
-      filter: function(source) {
-        logger.log(source)
+      filter: function(sourceFilePath) {
+        // ignore cwd in source path
+        sourceFilePath = sourceFilePath.replace(cwd, '')
+        if (sourceFilePath.charAt(0) === '/') {
+          sourceFilePath = sourceFilePath.slice(1)
+        }
+        logger.log(sourceFilePath)
+        // prevent endless recursion by not copying the directory into itself
+        if (sourceFilePath.startsWith(utils.tmpDir)) {
+          return false
+        }
         return true
       }
     })
@@ -64,9 +74,7 @@ function pack(options) {
   }).then(function() {
     return new Promise(function(resolve, reject) {
       var output = fs.createWriteStream(path.join(cwd, 'rpm_archive.zip'))
-      var archive = archiver('zip', {
-        store: true // Sets the compression method to STORE.
-      })
+      var archive = archiver('zip')
 
       output.on('close', function() {
         logger.log(archive.pointer() + ' total bytes')
@@ -80,15 +88,16 @@ function pack(options) {
 
       archive.pipe(output)
 
-      archive.glob('**/*', {
+      archive.glob('**', {
         cwd: tmpDir,
         debug: debug,
         ignore: [
-          utils.tmpDir,
-          'rpm_archive.zip'
-        ]
+          'rpm_archive.zip',
+          'roku_modules/**'
+        ].concat(ignore)
       })
 
+      archive.finalize()
     })
   }).catch(function(err) {
     if (err && err.type == 'UnreadableRokuModules') {

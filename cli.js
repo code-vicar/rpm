@@ -8,6 +8,7 @@ var info = require('./package.json')
 
 program.version(info.version)
   .option('-d, --dir <dir>', 'set the cwd')
+  .option('--debug', 'print debug messages')
 
 // program
 //     .command('deploy')
@@ -30,7 +31,7 @@ program
   .description('download dependencies')
   .action(function() {
     var cwd = getCwd()
-    return cmds.install({ cwd: cwd }).then(function(results) {
+    return cmds.install({ cwd: cwd, debug: program.debug }).then(function(results) {
       var count = results.length
 
       console.log('Installed ' + count + ' dependencies')
@@ -49,9 +50,14 @@ program
 program
   .command('pack')
   .description('pack and create a zip of the application')
-  .action(function() {
+  .option('-i, --ignore <ignore>', 'patterns to exclude when creating archive')
+  .action(function(options) {
     var cwd = getCwd()
-    return cmds.pack({ cwd: cwd }).then(function() {
+    var ignore = parseIgnore(options)
+    if (program.debug) {
+      console.log('ignore', ignore)
+    }
+    return cmds.pack({ cwd: cwd, debug: program.debug, ignore: ignore }).then(function() {
       console.log('Success')
     }).catch(function(err) {
       if (err) {
@@ -73,6 +79,14 @@ function getCwd() {
   }
 
   return cwd
+}
+
+function parseIgnore(options) {
+  if (!options || typeof options.ignore !== 'string') {
+    return []
+  }
+
+  return options.ignore.split(',')
 }
 
 program.parse(process.argv)
