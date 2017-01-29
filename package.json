@@ -1,6 +1,6 @@
 {
   "name": "@code-vicar/rpm",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "Roku package manager",
   "main": "index.js",
   "scripts": {
