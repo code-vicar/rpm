@@ -10,31 +10,43 @@ program.version(info.version)
   .option('-d, --dir <dir>', 'set the cwd')
   .option('--debug', 'print debug messages')
 
-// program
-//     .command('deploy')
-//     .arguments('<ipaddress> <packagepath>')
-//     .description('deploy roku app')
-//     .action(function(ipaddress, packagepath) {
-//         var cwd = getCwd();
-//         return cmds.deploy({cwd: cwd, ipaddress: ipaddress, packagepath: packagepath}).then(function(results) {
-//           if (results) {
-//             console.log('Success')
-//             return 0;
-//           }
-//           console.log('Failure')
-//           return 1;
-//         })
-//     })
-//
+program
+  .command('deploy')
+  .arguments('<ipaddress>')
+  .option('-u, --user <user>', 'roku device user')
+  .option('-p, --password <password>', 'roku device password')
+  .description('deploy roku app')
+  .action(function(ipaddress, options) {
+    var cwd = getCwd();
+    return cmds.deploy({
+      cwd: cwd,
+      debug: program.debug,
+      ipaddress: ipaddress,
+      user: options.user,
+      password: options.password
+    }).then(function(output) {
+      console.log(output.msg)
+      return 0;
+    }).catch(function(err) {
+      console.log('deploy command error')
+      console.log(err)
+      return 1;
+    })
+  })
+
 program
   .command('install')
   .description('download dependencies')
   .action(function() {
     var cwd = getCwd()
-    return cmds.install({ cwd: cwd, debug: program.debug }).then(function(results) {
+    return cmds.install({
+      cwd: cwd,
+      debug: program.debug
+    }).then(function(results) {
       var count = results.length
 
       console.log('Installed ' + count + ' dependencies')
+      return 0
     }).catch(function(err) {
       if (err) {
         if (err.message) {
@@ -44,6 +56,7 @@ program
           console.error('innerError', err.innerError.message)
         }
       }
+      return 1
     })
   })
 
@@ -57,8 +70,13 @@ program
     if (program.debug) {
       console.log('ignore', ignore)
     }
-    return cmds.pack({ cwd: cwd, debug: program.debug, ignore: ignore }).then(function() {
+    return cmds.pack({
+      cwd: cwd,
+      debug: program.debug,
+      ignore: ignore
+    }).then(function() {
       console.log('Success')
+      return 0
     }).catch(function(err) {
       if (err) {
         if (err.message) {
@@ -68,6 +86,7 @@ program
           console.error('innerError', err.innerError.message)
         }
       }
+      return 1
     })
   })
 

@@ -47,11 +47,8 @@ function pack(options) {
     rokuModulesPath = path.join(tmpDir, 'roku_modules')
 
     return readDir(rokuModulesPath).catch(function(err) {
-      throw new RpmError({
-        message: 'Could not read directory: ' + rokuModulesPath,
-        innerError: err,
-        type: 'UnreadableRokuModules'
-      })
+      logger.warn('Could not read directory: ' + rokuModulesPath)
+      return []
     })
   }).then(function(moduleNames) {
     // collect up the module paths and process them in series returning the results
@@ -110,10 +107,6 @@ function pack(options) {
       }
     })
   }).catch(function(err) {
-    if (err && err.type == 'UnreadableRokuModules') {
-      // noop when roku_modules is unreadable
-      return Promise.resolve()
-    }
     if (err && err.type !== 'RemoveTempDir') {
       throw err
     }
