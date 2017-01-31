@@ -32,7 +32,7 @@ function pack(options) {
       filter: function(sourceFilePath) {
         // ignore cwd in source path
         sourceFilePath = sourceFilePath.replace(cwd, '')
-        if (sourceFilePath.charAt(0) === '/') {
+        if (sourceFilePath.charAt(0) === path.sep) {
           sourceFilePath = sourceFilePath.slice(1)
         }
         logger.log(sourceFilePath)
