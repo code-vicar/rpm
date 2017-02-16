@@ -15,6 +15,7 @@ function install(options) {
   var cwd = _.get(options, 'cwd')
   var rpmJsonPath, rokuModulesPath
   var didClearCache = false
+  var isHardInstall = !!_.get(options, 'hard')
 
   return validateDirectory(cwd).then(function(_cwd) {
     // set paths
@@ -84,6 +85,31 @@ function install(options) {
       })
     })
   }).then(function(results) {
+    if (!isHardInstall) {
+      return results
+    }
+    var moduleNames = results.map(function(result) {
+      return result.sourceKey
+    })
+
+    // collect up the module paths and process them in series returning the results
+    var modulePathProcessors = []
+
+    _.forEach(moduleNames, function(moduleName) {
+      modulePathProcessors.push(function(callback) {
+        processModulePath(cwd, rokuModulesPath, moduleName, callback)
+      })
+    })
+
+    return new Promise(function(resolve, reject) {
+      async.series(modulePathProcessors, function(err, results) {
+        if (err) {
+          return reject(err)
+        }
+        return resolve(results)
+      })
+    })
+  }).then(function(results) {
     return clearCache().then(function() {
       didClearCache = true
       return results
@@ -115,5 +141,27 @@ function clearCache() {
 
       return resolve()
     })
+  })
+}
+
+function processModulePath(cwd, rokuModulesPath, moduleName, cb) {
+  var config, moduleComponents, moduleSource, targetComponents, targetSource
+  try {
+    var config = {}
+
+    var moduleComponents = path.join(rokuModulesPath, moduleName, 'components')
+    var targetComponents = path.join(cwd, 'components', moduleName)
+    var moduleSource = path.join(rokuModulesPath, moduleName, 'source')
+    var targetSource = path.join(cwd, 'source', moduleName)
+  } catch (e) {
+    cb(e)
+  }
+
+  fs.copy(moduleComponents, targetComponents).then(function() {
+    return fs.copy(moduleSource, targetSource)
+  }).then(function() {
+    cb()
+  }).catch(function(err) {
+    cb(err)
   })
 }

@@ -36,11 +36,13 @@ program
 
 program
   .command('install')
+  .option('-h, --hard', 'copy installed modules into source and components folders')
   .description('download dependencies')
-  .action(function() {
+  .action(function(options) {
     var cwd = getCwd()
     return cmds.install({
       cwd: cwd,
+      hard: options.hard,
       debug: program.debug
     }).then(function(results) {
       var count = results.length

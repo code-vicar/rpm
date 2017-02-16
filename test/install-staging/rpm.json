@@ -1,8 +1,0 @@
-{
-  "dependencies": {
-    "graphlib": "github:code-vicar/graphlib",
-    "odin": "github:code-vicar/odin#66a70f6",
-    "lodash": "github:lodash/lodash",
-    "async": "github:lodash/async"
-  }
-}
