@@ -43,7 +43,13 @@ function install(options) {
       downloads.push(function(callback) {
         addRemoteGit.download(value, function(err, download) {
           if (err) {
-            return callback(err)
+            console.log("NOT A GIT URL - assuming file system path")
+            console.log(value)
+            console.log(key)
+            download = {}
+            download.tmpdir = value
+            download.sourceKey = key
+            return callback(null, download)
           }
           download.sourceValue = value
           download.sourceKey = key
