@@ -135,6 +135,23 @@ describe('install', function() {
     })
   })
 
+  it('should fallback to local file system if package value is not a git URL', function() {
+    var tmpMockAddRemoteGit = {
+      download: function(url, cb) {
+        return cb(new Error('... is not a Git or GitHub URL'))
+      },
+      clearCache: mockAddRemoteGit.clearCache
+    }
+
+    return install.__with__({
+      addRemoteGit: tmpMockAddRemoteGit
+    })(function() {
+      return install().then(function() {
+        expect(mockAddRemoteGit.clearCache.called).to.equal(true, 'clearCache was not called')
+      })
+    })
+  })
+
   it('should call clearCache after install succeeds', function() {
     return install().then(function() {
       expect(mockAddRemoteGit.clearCache.called).to.equal(true, 'clearCache was not called')
