@@ -42,10 +42,12 @@ function install(options) {
     _.forOwn(rpmJson.dependencies, function(value, key) {
       downloads.push(function(callback) {
         addRemoteGit.download(value, function(err, download) {
-          if (err) {
-            console.log("NOT A GIT URL - assuming file system path")
-            console.log(value)
-            console.log(key)
+          if (err && err.message.endsWith('is not a Git or GitHub URL')) {
+            if (process.env.NODE_ENV !== 'test') {
+              console.log('NOT A GIT URL - assuming file system path')
+              console.log(value)
+              console.log(key)
+            }
             download = {}
             download.tmpdir = value
             download.sourceKey = key
