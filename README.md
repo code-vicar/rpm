@@ -22,7 +22,7 @@ npm install @code-vicar/rpm
 
 ## install
 
-The install will download git-url dependencies into a roku_modules directory
+Install will download git-url dependencies into a roku_modules directory
 
 if the -h (--hard) flag is provided, the downloaded packages will also be copied into the source and components folders
 
