@@ -19,6 +19,7 @@ function pack(options) {
   var cwd = _.get(options, 'cwd')
   var debug = !!(_.get(options, 'debug'))
   var ignore = _.get(options, 'ignore') || []
+  var modifiers = _.get(options, 'modifiers') || []
   var logger = new Logger(debug)
   var tmpDir = utils.tmpDir
   var rokuModulesPath
@@ -43,6 +44,10 @@ function pack(options) {
         return true
       }
     })
+  }).then(async function() {
+    for (const modifier of modifiers) {
+      await modifier(tmpDir)
+    }
   }).then(function() {
     rokuModulesPath = path.join(tmpDir, 'roku_modules')
 
