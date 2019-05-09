@@ -6,7 +6,7 @@ var rewire = require('rewire')
 var pack = rewire('../cmds/pack')
 
 var dir = path.resolve(__dirname)
-var temp_dir = '.rpm_pack'
+var temp_dir = `/tmp/rpm_pack`
 
 describe('pack', function() {
   var mockReadDir, mockfs, mockArchiver
@@ -37,7 +37,10 @@ describe('pack', function() {
           options.filter('')
         }
         return Promise.resolve()
-      })
+      }),
+      mkdtempSync: function() {
+        return temp_dir
+      }
     }
 
     mockArchiver = function() {
@@ -92,34 +95,8 @@ describe('pack', function() {
       expect(mockfs.copy.called).to.equal(true, 'Copy not called')
       expect(mockfs.copy.calledWith(
         dir,
-        path.join(dir, temp_dir)
+        temp_dir
       )).to.equal(true, 'Didn\'t copy to temp folder')
-    })
-  })
-
-  it('should not copy sub directory into itself', function() {
-    var mockString = {
-      charAt: function() { return '/' },
-      replace: sinon.spy(function() {
-        return mockString
-      }),
-      slice: sinon.spy(function() {
-        return mockString
-      }),
-      startsWith: sinon.spy()
-    }
-    mockfs.copy = function(src, dest, options) {
-      if (options && typeof options.filter === 'function') {
-        options.filter(mockString)
-      }
-      return Promise.resolve()
-    }
-    return pack({
-      cwd: dir
-    }).then(function() {
-      expect(mockString.replace.called).to.equal(true, 'Did not call replace')
-      expect(mockString.slice.called).to.equal(true, 'Did not call slice')
-      expect(mockString.startsWith.calledWith(temp_dir)).to.equal(true, 'Did not call startsWith with temp_dir')
     })
   })
 
@@ -129,18 +106,18 @@ describe('pack', function() {
     }).then(function() {
       expect(mockfs.copy.called).to.equal(true, 'Copy not called')
       expect(mockfs.copy.calledWith(
-        path.join(dir, temp_dir, 'roku_modules', 'dep1', 'components'),
-        path.join(dir, temp_dir, 'components', 'dep1')
+        path.join(temp_dir, 'roku_modules', 'dep1', 'components'),
+        path.join(temp_dir, 'components', 'dep1')
       )).to.equal(true, 'Incorrect dep1 copy parameters')
 
       expect(mockfs.copy.calledWith(
-        path.join(dir, temp_dir, 'roku_modules', 'dep2', 'components'),
-        path.join(dir, temp_dir, 'components', 'dep2')
+        path.join(temp_dir, 'roku_modules', 'dep2', 'components'),
+        path.join(temp_dir, 'components', 'dep2')
       )).to.equal(true, 'Incorrect dep2 copy parameters')
 
       expect(mockfs.copy.calledWith(
-        path.join(dir, temp_dir, 'roku_modules', 'dep1', 'components'),
-        path.join(dir, temp_dir, 'components', 'dep2')
+        path.join(temp_dir, 'roku_modules', 'dep1', 'components'),
+        path.join(temp_dir, 'components', 'dep2')
       )).to.not.equal(true, 'Mixed up copy parameters')
     })
   })
@@ -151,18 +128,18 @@ describe('pack', function() {
     }).then(function() {
       expect(mockfs.copy.called).to.equal(true, 'Copy not called')
       expect(mockfs.copy.calledWith(
-        path.join(dir, temp_dir, 'roku_modules', 'dep1', 'source'),
-        path.join(dir, temp_dir, 'source', 'dep1')
+        path.join(temp_dir, 'roku_modules', 'dep1', 'source'),
+        path.join(temp_dir, 'source', 'dep1')
       )).to.equal(true, 'Incorrect dep1 copy parameters')
 
       expect(mockfs.copy.calledWith(
-        path.join(dir, temp_dir, 'roku_modules', 'dep2', 'source'),
-        path.join(dir, temp_dir, 'source', 'dep2')
+        path.join(temp_dir, 'roku_modules', 'dep2', 'source'),
+        path.join(temp_dir, 'source', 'dep2')
       )).to.equal(true, 'Incorrect dep2 copy parameters')
 
       expect(mockfs.copy.calledWith(
-        path.join(dir, temp_dir, 'roku_modules', 'dep1', 'source'),
-        path.join(dir, temp_dir, 'source', 'dep2')
+        path.join(temp_dir, 'roku_modules', 'dep1', 'source'),
+        path.join(temp_dir, 'source', 'dep2')
       )).to.not.equal(true, 'Mixed up copy parameters')
     })
   })
@@ -300,7 +277,7 @@ describe('pack', function() {
       cwd: dir
     }).then(function() {
       expect(mockfs.remove.called).to.equal(true, 'Did not call remove')
-      expect(mockfs.remove.calledWith(path.join(dir, temp_dir))).to.equal(true, 'Incorrect remove location')
+      expect(mockfs.remove.calledWith(temp_dir)).to.equal(true, 'Incorrect remove location')
     })
   })
 
@@ -312,7 +289,7 @@ describe('pack', function() {
       cwd: dir
     }).then(function() {
       expect(mockfs.remove.called).to.equal(true, 'Did not call remove')
-      expect(mockfs.remove.calledWith(path.join(dir, temp_dir))).to.equal(true, 'Incorrect remove location')
+      expect(mockfs.remove.calledWith(temp_dir)).to.equal(true, 'Incorrect remove location')
     })
   })
 })

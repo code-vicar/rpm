@@ -79,7 +79,6 @@ function Logger(debug) {
 }
 
 var utils = {
-  tmpDir: '.rpm_pack',
   RpmError: RpmError,
   stat: stat,
   Logger: Logger,

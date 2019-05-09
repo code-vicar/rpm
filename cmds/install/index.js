@@ -13,7 +13,7 @@ var RpmError = utils.RpmError
 
 module.exports = install
 
-function install(options) {
+function install(options = {}) {
   var cwd = lodashGet(options, 'cwd')
   var rpmJsonPath, rokuModulesPath
   var didClearCache = false
@@ -40,10 +40,11 @@ function install(options) {
       return Promise.resolve(0)
     }
 
+    var logLevel = options.debug ? 'info' : 'silent'
     var downloads = []
     lodashForOwn(rpmJson.dependencies, function(value, key) {
       downloads.push(function(callback) {
-        addRemoteGit.download(value, function(err, download) {
+        addRemoteGit.download(value, { logLevel: logLevel }, function(err, download) {
           if (err && err.message.endsWith('is not a Git or GitHub URL')) {
             if (process.env.NODE_ENV !== 'test') {
               console.log('NOT A GIT URL - assuming file system path')
@@ -55,6 +56,11 @@ function install(options) {
             download.sourceKey = key
             return callback(null, download)
           }
+          if (err) {
+            // unhandled err
+            return callback(err)
+          }
+          
           download.sourceValue = value
           download.sourceKey = key
           return callback(null, download)

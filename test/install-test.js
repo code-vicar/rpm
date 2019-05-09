@@ -21,7 +21,7 @@ dependencies['github:lodash/lodash'] = 'lodash'
 dependencies['github:lodash/async'] = 'async'
 
 var mockAddRemoteGit = {
-  download: sinon.spy(function(url, cb) {
+  download: sinon.spy(function(url, options, cb) {
     var dirName = dependencies[url]
 
     return cb(null, {
@@ -134,7 +134,7 @@ describe('install', function() {
 
   it('should fallback to local file system if package value is not a git URL', function() {
     var tmpMockAddRemoteGit = {
-      download: function(url, cb) {
+      download: function(url, {}, cb) {
         return cb(new Error('... is not a Git or GitHub URL'))
       },
       clearCache: mockAddRemoteGit.clearCache

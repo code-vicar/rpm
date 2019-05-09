@@ -1,4 +1,5 @@
 var path = require('path')
+var os = require('os')
 
 var lodashGet = require('lodash.get')
 var lodashForEach = require('lodash.foreach')
@@ -15,33 +16,18 @@ var validateDirectory = utils.validateDirectory
 module.exports = pack
 
 function pack(options) {
-  var cwd = lodashGet(options, 'cwd')
+  var cwdOption = lodashGet(options, 'cwd')
   var debug = !!(lodashGet(options, 'debug'))
   var ignore = lodashGet(options, 'ignore') || []
   var logger = new Logger(debug)
-  var tmpDir = utils.tmpDir
+  var tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'rpm_pack-'))
   var rokuModulesPath
+  var cwd
 
-  return validateDirectory(cwd).then(function(_cwd) {
+  return validateDirectory(cwdOption).then(function(validCwd) {
     // set paths
-    cwd = _cwd
-    tmpDir = path.join(cwd, tmpDir)
-
-    return fs.copy(cwd, tmpDir, {
-      filter: function(sourceFilePath) {
-        // ignore cwd in source path
-        sourceFilePath = sourceFilePath.replace(cwd, '')
-        if (sourceFilePath.charAt(0) === path.sep) {
-          sourceFilePath = sourceFilePath.slice(1)
-        }
-        logger.log(sourceFilePath)
-        // prevent endless recursion by not copying the directory into itself
-        if (sourceFilePath.startsWith(utils.tmpDir)) {
-          return false
-        }
-        return true
-      }
-    })
+    cwd = validCwd
+    return fs.copy(cwd, tmpDir)
   }).then(function() {
     rokuModulesPath = path.join(tmpDir, 'roku_modules')
 
@@ -115,10 +101,8 @@ function pack(options) {
 }
 
 function processModulePath(cwd, rokuModulesPath, moduleName, cb) {
-  var config, moduleComponents, moduleSource, targetComponents, targetSource
+  var moduleComponents, moduleSource, targetComponents, targetSource
   try {
-    var config = {}
-
     var moduleComponents = path.join(rokuModulesPath, moduleName, 'components')
     var targetComponents = path.join(cwd, 'components', moduleName)
     var moduleSource = path.join(rokuModulesPath, moduleName, 'source')

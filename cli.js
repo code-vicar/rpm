@@ -36,7 +36,7 @@ program
 
 program
   .command('install')
-  .option('-h, --hard', 'copy installed modules into source and components folders')
+  .option('-H, --hard', 'copy installed modules into source and components folders')
   .description('download dependencies')
   .action(function(options) {
     var cwd = getCwd()
