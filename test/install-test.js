@@ -3,10 +3,7 @@ var path = require('path')
 var expect = require('chai').expect
 var sinon = require('sinon')
 var rewire = require('rewire')
-var del = require('del')
-var fs = require('fs-promise')
 
-var utils = require('../utils')
 var install = rewire('../cmds/install')
 
 var mockRpmJson = {

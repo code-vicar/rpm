@@ -1,15 +1,11 @@
 var fs = require('fs')
 var path = require('path')
-var querystring = require('querystring')
-var stream = require('stream')
 
 var request = require('request')
-var _ = require('lodash')
-var async = require('async')
+var lodashGet = require('lodash.get')
 
 var utils = require('../../utils')
 var validateDirectory = utils.validateDirectory
-var Logger = utils.Logger
 
 module.exports = deploy
 
@@ -19,13 +15,11 @@ var keypressPath = ':8060/keypress'
 var homeButtonPath = '/Home'
 
 function deploy(options) {
-  var debug = !!_.get(options, 'debug')
-  var logger = new Logger(debug)
-  var cwd = _.get(options, 'cwd')
+  var cwd = lodashGet(options, 'cwd')
 
-  var ipaddress = _.get(options, 'ipaddress') || '192.168.1.1'
-  var user = _.get(options, 'user') || 'rokudev'
-  var password = _.get(options, 'password') || '1111'
+  var ipaddress = lodashGet(options, 'ipaddress') || '192.168.1.1'
+  var user = lodashGet(options, 'user') || 'rokudev'
+  var password = lodashGet(options, 'password') || '1111'
 
   var host = protocol + ipaddress
   var remoteControlURL = host + keypressPath

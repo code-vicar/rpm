@@ -3,9 +3,6 @@ var path = require('path')
 var expect = require('chai').expect
 var sinon = require('sinon')
 var rewire = require('rewire')
-var fs = require('fs-promise')
-
-var utils = require('../utils')
 var pack = rewire('../cmds/pack')
 
 var dir = path.resolve(__dirname)

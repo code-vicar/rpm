@@ -1,9 +1,11 @@
 var path = require('path')
 
-var _ = require('lodash')
+var lodashGet = require('lodash.get')
+var lodashForOwn = require('lodash.forown')
+var lodashForEach = require('lodash.foreach')
 var async = require('async')
 var addRemoteGit = require('add-remote-git')
-var fs = require('fs-promise')
+var fs = require('fs-extra')
 var utils = require('../../utils')
 var validateDirectory = utils.validateDirectory
 var readFile = utils.readFile
@@ -12,10 +14,10 @@ var RpmError = utils.RpmError
 module.exports = install
 
 function install(options) {
-  var cwd = _.get(options, 'cwd')
+  var cwd = lodashGet(options, 'cwd')
   var rpmJsonPath, rokuModulesPath
   var didClearCache = false
-  var isHardInstall = !!_.get(options, 'hard')
+  var isHardInstall = !!lodashGet(options, 'hard')
 
   return validateDirectory(cwd).then(function(_cwd) {
     // set paths
@@ -39,7 +41,7 @@ function install(options) {
     }
 
     var downloads = []
-    _.forOwn(rpmJson.dependencies, function(value, key) {
+    lodashForOwn(rpmJson.dependencies, function(value, key) {
       downloads.push(function(callback) {
         addRemoteGit.download(value, function(err, download) {
           if (err && err.message.endsWith('is not a Git or GitHub URL')) {
@@ -75,7 +77,7 @@ function install(options) {
     })
   }).then(function(results) {
     var copies = []
-    _.forEach(results, function(result) {
+    lodashForEach(results, function(result) {
       var targetDir = path.join(rokuModulesPath, result.sourceKey)
       copies.push(function(callback) {
         fs.copy(result.tmpdir, targetDir)
@@ -103,7 +105,7 @@ function install(options) {
     // collect up the module paths and process them in series returning the results
     var modulePathProcessors = []
 
-    _.forEach(moduleNames, function(moduleName) {
+    lodashForEach(moduleNames, function(moduleName) {
       modulePathProcessors.push(function(callback) {
         processModulePath(cwd, rokuModulesPath, moduleName, callback)
       })

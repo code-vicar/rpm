@@ -1,13 +1,12 @@
 var path = require('path')
 
-var _ = require('lodash')
-var fs = require('fs-promise')
+var lodashGet = require('lodash.get')
+var lodashForEach = require('lodash.foreach')
+var fs = require('fs-extra')
 var async = require('async')
-// var glob = require('glob')
 var archiver = require('archiver')
 
 var utils = require('../../utils')
-var stat = utils.stat
 var readDir = utils.readDir
 var RpmError = utils.RpmError
 var Logger = utils.Logger
@@ -16,9 +15,9 @@ var validateDirectory = utils.validateDirectory
 module.exports = pack
 
 function pack(options) {
-  var cwd = _.get(options, 'cwd')
-  var debug = !!(_.get(options, 'debug'))
-  var ignore = _.get(options, 'ignore') || []
+  var cwd = lodashGet(options, 'cwd')
+  var debug = !!(lodashGet(options, 'debug'))
+  var ignore = lodashGet(options, 'ignore') || []
   var logger = new Logger(debug)
   var tmpDir = utils.tmpDir
   var rokuModulesPath
@@ -54,7 +53,7 @@ function pack(options) {
     // collect up the module paths and process them in series returning the results
     var modulePathProcessors = []
 
-    _.forEach(moduleNames, function(moduleName) {
+    lodashForEach(moduleNames, function(moduleName) {
       modulePathProcessors.push(function(callback) {
         processModulePath(tmpDir, rokuModulesPath, moduleName, callback)
       })

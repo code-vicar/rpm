@@ -1,5 +1,5 @@
 var fs = require('fs')
-var _ = require('lodash')
+var lodashForEach = require('lodash.foreach')
 
 function RpmError(options) {
   options = options || {}
@@ -106,7 +106,7 @@ var utils = {
     })
   },
   validateDirectory: function validateDirectory(cwd) {
-    if (!_.isNil(cwd)) {
+    if (typeof cwd !== 'undefined' && cwd !== null) {
       return stat(cwd).then(function(cwdStats) {
         if (!cwdStats.isDirectory()) {
           throw new Error('Invalid cwd option')
@@ -124,7 +124,7 @@ var exists = [
   'Directory'
 ]
 
-_.forEach(exists, function(thingType) {
+lodashForEach(exists, function(thingType) {
   utils['does' + thingType + 'AlreadyExist'] = function(thing) {
     return stat(thing).then(function(stats) {
       return stats['is' + thingType]()
