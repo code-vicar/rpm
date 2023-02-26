@@ -1,5 +1,9 @@
 # Roku Package Manager
 
+>
+> This package is no longer maintained
+>
+
 Roku package manager will download dependencies listed in an 'rpm.json'.
 
 Dependencies must be ['git urls'](https://docs.npmjs.com/files/package.json#urls-as-dependencies).
